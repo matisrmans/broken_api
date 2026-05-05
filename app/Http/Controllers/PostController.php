@@ -21,7 +21,7 @@ class PostController extends Controller implements HasMiddleware
      */
     public function index()
     {
-        return Post()->all();
+        return Post::all();
     }
 
     /**
@@ -31,11 +31,10 @@ class PostController extends Controller implements HasMiddleware
     {
         $fields = $request->validate([
             'title' => 'required|max:255',
-            'body' => 'required',
-            'password' => 'required'
+            'body' => 'required'
         ]);
 
-        $post = Post::create($fields);
+        $post = $request->user()->posts()->create($fields);
 
         return $post;
     }
@@ -72,5 +71,18 @@ class PostController extends Controller implements HasMiddleware
         Gate::authorize('modify', $post);
         $post->delete();
         return ['message' => "The post ($post->id) has been deleted"];
+    }
+
+    public function changeStatus(Request $request, Post $post)
+    {
+        Gate::authorize('modify', $post);
+
+        $fields = $request->validate([
+            'post_status_id' => 'required|exists:post_statuses,id'
+        ]);
+
+        $post->update($fields);
+
+        return $post->load('status');
     }
 }

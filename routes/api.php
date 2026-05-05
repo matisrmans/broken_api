@@ -9,8 +9,10 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::get('posts', PostController::class);
+Route::resource('posts', PostController::class);
+Route::patch('posts/{post}/status', [PostController::class, 'changeStatus'])->middleware('auth:sanctum');
+Route::apiResource('posts.comments', \App\Http\Controllers\CommentController::class);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');;
